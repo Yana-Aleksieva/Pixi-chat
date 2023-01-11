@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Pixi Exercise</title>
+   
+    <script type="module">
+        import { io } from "https://cdn.socket.io/4.3.2/socket.io.esm.min.js";
+      </script>
+   
+    <script src="/dist/app.js" type="module"></script>
+
+</head>
+<body>
+    <div id="init">
+        <h2>Room name</h2>
+        <form id="init-form">
+            <input type="text" name="room">
+            <input type="text" name="username">
+
+            <input type="submit" value="Enter room">
+        </form>
+    </div>
+</body>
+
+</html>
