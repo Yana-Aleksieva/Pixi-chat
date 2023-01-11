@@ -5,6 +5,7 @@ import * as PIXI from 'pixi.js';
 import { Button } from './Button';
 import { createPanel, getText, tileTexture } from './util';
 import { io } from "socket.io-client";
+import { TextArea } from './TexArea';
 
 let socket;
 
@@ -18,7 +19,9 @@ function onSubmit(event) {
     initSocket(roomId, username);
 }
 
-function initSocket(roomId, username) {
+function initSocket(roomId: FormDataEntryValue, username: FormDataEntryValue) {
+
+    // init socket
     socket = io("http://localhost:3000/");
     socket.on('connect', () => {
 
@@ -28,84 +31,90 @@ function initSocket(roomId, username) {
 
     });
 
-    socket.on('error', error => alert(error));
+    socket.on('error', error=> alert(error));
 
 }
 
 
 async function init() {
+
+    //add canvas 
     const app = new PIXI.Application();
+    document.body.appendChild(app.view as HTMLCanvasElement);
+
+    //hide rooms form
     document.getElementById('init').style.display = 'none';
     app.ticker.add(update);
-    document.body.appendChild(app.view as HTMLCanvasElement);
-    let text: string = '';
-    const messageArray: any[] = [];
 
-    const inputContainer = new PIXI.Container();
-    const style = new PIXI.TextStyle({
-        fill: "0xFFFFFF",
-        fontSize: 20,
-        fontStyle: "italic",
-        strokeThickness: 1,
 
-    });
-
-    const inputText = new PIXI.Text(text, style);
-
-    document.body.addEventListener('keydown', event => {
-
-        text = getText(event.key, text);
-        inputText.text = text;
-
-    });
-
+    // create textures
     const buttonTiles = await tileTexture('assets/bevel.png', 25, 105, 25, 105);
     const hlTiles = await tileTexture('assets/hover.png', 25, 105, 25, 105);
     const pressedTiles = await tileTexture('assets/inset.png', 25, 105, 25, 105);
-    const inputPanel = (createPanel(hlTiles, 600, 50));
-    const outputPanel = (createPanel(buttonTiles, 700, 400));
-    const outputText = new PIXI.Text('');
-    outputText.position.set(30, 5);
-    outputPanel.addChild(outputText)
-    inputPanel.addChild(inputText);
-    const prevBtn = new Button(
+
+
+
+    //create output and input panels
+    const outputPanel = new TextArea(
+        'placeholder',
+        (createPanel(pressedTiles, 750, 475))
+    );
+
+    const inputPanel = new TextArea(
+        'placeholder',
+        (createPanel(pressedTiles, 575, 50)),
+        onClick.bind(null, -1)
+    );
+
+
+    //add even listener
+    document.body.addEventListener('keydown', event => {
+        inputPanel.getText(event.key)
+
+    });
+
+
+
+    //create button
+    const clickBtn = new Button(
         'Send',
         onClick.bind(null, -1),
         createPanel(buttonTiles, 150, 50),
         createPanel(hlTiles, 150, 50),
         createPanel(pressedTiles, 150, 50)
     );
-    prevBtn.position.set(190, 530);
-    const outputContainer = new PIXI.Container();
 
+
+    //change button position
+    clickBtn.position.set(190, 530);
+
+
+    // create PIXI container
     const ui = new PIXI.Container();
-    ui.addChild(prevBtn, outputContainer, inputContainer);
-
+    ui.addChild(clickBtn, outputPanel, inputPanel);
     app.stage.addChild(ui);
-    outputContainer.position.set(25, 25);
-    inputContainer.position.set(25, 525);
-    prevBtn.position.set(625, 525);
-
-    inputText.position.set(30, 5)
-    outputContainer.addChild(outputPanel);
-    inputContainer.addChild(inputPanel);
-
-    socket.on('message', (data) => {
-        outputText.text += data + '\n';
 
 
+    //set position of elements
+    inputPanel.position.set(25, 525);
+    outputPanel.position.set(25, 25);
+    clickBtn.position.set(625, 525);
+
+
+
+    //display text on outputPanel
+    socket.on('message', (data: string) => {
+
+        outputPanel.text.text += data + '\n'
     });
 
 
+
+    // add function on click event
     function onClick() {
 
-        messageArray.push(`${inputText.text}`);
-
-        text = '';
-        inputText.text = '';
-        let output = messageArray.join('\n');
-        socket.emit('message', output);
-
+        socket.emit('message', inputPanel.text.text);
+        inputPanel.reset()
     }
 
 }

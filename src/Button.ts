@@ -24,7 +24,7 @@ export class Button extends Container {
         this.addChild(this.element, this.highlight, this.pressed);
         this.highlight.renderable = false;
         this.pressed.renderable = false;
-        
+
         this.text = new Text('', style);
         this.text.anchor.set(0.5, 0.5);
         this.label = label;
