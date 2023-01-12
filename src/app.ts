@@ -3,15 +3,19 @@
 
 import * as PIXI from 'pixi.js';
 import { Button } from './Button';
-import { createPanel, getText, tileTexture } from './util';
+import { createPanel, tileTexture } from './util';
 import { io } from "socket.io-client";
 import { TextArea } from './TexArea';
+
+
+
+
 
 let socket;
 
 document.getElementById('init-form').addEventListener('submit', onSubmit);
 
-function onSubmit(event) {
+function onSubmit(event ) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const roomId = formData.get('room');
@@ -31,7 +35,7 @@ function initSocket(roomId: FormDataEntryValue, username: FormDataEntryValue) {
 
     });
 
-    socket.on('error', error=> alert(error));
+    socket.on('error', error => alert(error));
 
 }
 
@@ -113,8 +117,11 @@ async function init() {
     // add function on click event
     function onClick() {
 
-        socket.emit('message', inputPanel.text.text);
-        inputPanel.reset()
+        if (inputPanel.text.text != '') {
+
+            socket.emit('message', inputPanel.text.text);
+        }
+        inputPanel.reset();
     }
 
 }

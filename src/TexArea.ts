@@ -17,7 +17,7 @@ export class TextArea extends Container {
         label: string,
         private element: DisplayObject,
         private callback?: () => void
-        
+
     ) {
         super();
 
@@ -50,7 +50,7 @@ export class TextArea extends Container {
     getText(value: string) {
 
         let current = value.charCodeAt(0);
-        if (value.length < 2) {
+        if (value.length < 2 && value != '' && value !== ' ') {
             this.text.text += value;
         }
         if (value == 'Enter') {
